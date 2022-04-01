@@ -1,5 +1,8 @@
 from email import header
+from unittest import result
 import requests
+import pprint
+import pandas as pd
 
 api_key = "a7d08052f1a08e9555931adc06a1a1c9"
 api_key_v4 = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhN2QwODA1MmYxYTA4ZTk1NTU5MzFhZGMwNmExYTFjOSIsInN1YiI6IjYyNDA0YzkyNDU3NjVkMDA5NDRiMThkMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SKNZJSJRuKYy-UjZoP3MCH669VDogRYFlrDroq3KUvM"
@@ -16,11 +19,11 @@ Endpoint
 https://api.themoviedb.org/3/movie/550?api_key=a7d08052f1a08e9555931adc06a1a1c9
 
 """
-movie_id = 500
-api_version = 3
-api_base_url = f"https://api.themoviedb.org/{api_version}"
-endpoint_path = f"/movie/{movie_id}"
-endpoint = f"{api_base_url}{endpoint_path}?api_key={api_key}"
+# movie_id = 500
+# api_version = 3
+# api_base_url = f"https://api.themoviedb.org/{api_version}"
+# endpoint_path = f"/movie/{movie_id}"
+# endpoint = f"{api_base_url}{endpoint_path}?api_key={api_key}"
 # r = requests.get(endpoint) #json={"api_key":api_key})
 # print(r.status_code)
 # print(r.text)
@@ -35,6 +38,43 @@ headers = {
  'Authorization': f'Bearer {api_key_v4}',
  'Content-Type': 'application/json;charset=utf-8'
 }
-r = requests.get(endpoint, headers=headers) #json={"api_key":api_key})
-print(r.status_code)
-print(r.text)
+# r = requests.get(endpoint, headers=headers) #json={"api_key":api_key})
+# print(r.status_code)
+# print(r.text)
+
+api_base_url = f"https://api.themoviedb.org/{api_version}"
+endpoint_path = f"/search/movie"
+search_query = "The Matrix"
+endpoint = f"{api_base_url}{endpoint_path}?api_key={api_key}&query={search_query}"
+# print(endpoint)
+r = requests.get(endpoint)
+# pprint.pprint(r.json())
+
+if r.status_code in range(200,299):
+    data = r.json()
+    results = data['results']
+    if len(results) > 0:
+        movie_ids = set()
+        for result in results:
+            _id = result['id']
+            # print(result['title'], _id)
+            movie_ids.add(_id)
+    # print(list(movie_ids))
+
+output = 'movies.csv'
+movie_data = []    
+
+for movie_id in movie_ids:
+    api_version = 3
+    api_base_url = f"https://api.themoviedb.org/{api_version}"
+    endpoint_path = f"/movie/{movie_id}"
+    endpoint = f"{api_base_url}{endpoint_path}?api_key={api_key}"
+    r = requests.get(endpoint)
+    if r.status_code in range(200, 299):
+        data = r.json()
+        movie_data.append(data)
+
+
+df = pd.DataFrame(movie_data)
+print(df.head())
+df.to_csv(output, index=False)
