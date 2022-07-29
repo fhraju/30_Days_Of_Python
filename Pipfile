@@ -9,6 +9,7 @@ gunicorn = "*"
 uvicorn = "*"
 fastapi = "*"
 pillow = "*"
+selenium = "*"
 
 [dev-packages]
 
