@@ -1,0 +1,2 @@
+INSTA_USERNAME = "testgfscrapaccouns"
+INSTA_PASSWORD = "R3540978"
